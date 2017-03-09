@@ -7,7 +7,7 @@ function [ data_i, data_q, time ] = codetect( sndres, init_time )
     cod.fc = 18000;  % center frequency
     cod.frameSize = 3840;
     
-    if size(out,2) > 1
+    if size(sndres,2) > 1
         error('codetect: soundres can only be a one-dimension array');
     end
     if ~exist('init_time','var')
