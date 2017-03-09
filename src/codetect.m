@@ -14,12 +14,12 @@ function [ data_i, data_q, time ] = codetect( sndres, init_time )
         init_time = 0;
     end
     
-    cod.time = (init_time+1/cod.fs):(1/cod.fs):(cod.time+length(sndres)/cod.fs);
+    cod.time = (init_time+1/cod.fs):(1/cod.fs):(init_time+length(sndres)/cod.fs);
     cod.y_i = sndres .* (cos(2*pi*cod.fc*cod.time))';
     cod.y_q = sndres .* (-sin(2*pi*cod.fc*cod.time))';
     
     data_i = cod.y_i;
     data_q = cod.y_q;
-    time = cod.time(end)+1/cod.fs;
+    time = cod.time(end);
 end
 
