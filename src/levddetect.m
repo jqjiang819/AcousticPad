@@ -22,7 +22,7 @@ function [ data_out, ext_out ] = levddetect( data_in, s_init, ext_in )
     else
         levd.ext = ext_in;
     end
-    if size(ext_in) ~= [1,2]
+    if size(levd.ext) ~= [1,2]
         error('levddetect: extremas structure error.');
     end
     if size(data_in,2) > 1
@@ -67,23 +67,21 @@ function out = isminmax(data, i)
 %  max: out = 1
 %  oth: out = 0
     % get left value
-    if i == 1
-        ism.out = 0;
-    elseif i < 6
+    if i < 6 && i > 1
         ism.left = mean(data(1:i-1));
-    else
+    elseif i ~= 1
         ism.left = mean(data(i-5:i-1));
     end
     % get right value
-    if i == length(data)
-        ism.out = 0;
-    elseif i > length(data)-5
+    if i > length(data)-5 && i < length(data)
         ism.right = mean(data(i+1:end));
-    else
+    elseif i ~= length(data)
         ism.right = mean(data(i+1:i+5));
     end
     % check center value
-    if (data(i) > ism.left) && (data(i) > ism.right)
+    if i == 1 || i == length(data)
+        ism.out = 0;
+    elseif (data(i) > ism.left) && (data(i) > ism.right)
         ism.out = 1;
     elseif (data(i) < ism.left) && (data(i) < ism.right)
         ism.out = -1;
