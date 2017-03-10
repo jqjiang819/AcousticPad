@@ -58,7 +58,7 @@ function [ data_out, ext_out ] = levddetect( data_in, s_init, ext_in )
         levd.s(i+1) = 0.9*levd.s(i)+0.1*getextmean(levd.ext);
     end
     ext_out = levd.ext;
-    data_out = levd.s(2:end);
+    data_out = levd.s(2:end)';
 end
 
 function out = isminmax(data, i)
