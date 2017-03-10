@@ -12,7 +12,7 @@ s_q = [];
 vec_i = [];
 vec_q = [];
 % get audio data
-snd_data = sndcnvrt('../res/recmov.pcm');
+snd_data = sndcnvrt('../res/record.pcm');
 for i = 1:size(snd_data,2)
     % coherent detection
     [data_i,data_q,vars.cod.time] = codetect(snd_data(:,i),vars.cod.time);
@@ -36,5 +36,5 @@ end
 pha = phase(vec_i+1j*vec_q);
 len = -pha/(2*pi)*1.8889;
 len = len-len(1);
-t=1/3000:1/3000:6;
+t=1/3000:1/3000:length(len)/3000;
 plot(t,len);
