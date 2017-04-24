@@ -82,17 +82,18 @@ function out = isminmax(data, i)
 %  min: out = -1
 %  max: out = 1
 %  oth: out = 0
+    num = 5;
     % get left value
-    if i < 6 && i > 1
+    if i < num+1 && i > 1
         ism.left = mean(data(1:i-1));
     elseif i ~= 1
-        ism.left = mean(data(i-5:i-1));
+        ism.left = mean(data(i-num:i-1));
     end
     % get right value
-    if i > length(data)-5 && i < length(data)
+    if i > length(data)-num && i < length(data)
         ism.right = mean(data(i+1:end));
     elseif i ~= length(data)
-        ism.right = mean(data(i+1:i+5));
+        ism.right = mean(data(i+1:i+num));
     end
     % check center value
     if i == 1 || i == length(data)
