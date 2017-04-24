@@ -1,6 +1,6 @@
 % init
 clear;
-flags.algorithm = 'FCD';
+flags.algorithm = 'LEVD';
 vars.cod.time = 0;
 vars.cic.dbuf_i = zeros(17,3);
 vars.cic.dbuf_q = zeros(17,3);
@@ -22,6 +22,7 @@ DATA_DBG_EXTS.i = [];
 DATA_DBG_EXTS.cnt = 0;
 % get audio data
 snd_data = sndcnvrt('../res/record.pcm');
+tic;
 for i = 1:size(snd_data,2)
     % coherent detection
     [data_i,data_q,vars.cod.time] = codetect(snd_data(:,i),vars.cod.time);
@@ -54,6 +55,7 @@ for i = 1:size(snd_data,2)
     vec_i = [vec_i;vec_tmp_i];
     vec_q = [vec_q;vec_tmp_q];
 end
+toc;
 % test
 pha = phase(vec_q+1j*vec_i);
 len = pha/(2*pi)*1.8889;
