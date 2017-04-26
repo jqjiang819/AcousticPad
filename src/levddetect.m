@@ -33,7 +33,7 @@ function [ data_out, ext_out ] = levddetect( data_in, s_init, ext_in )
     DATA_DBG_EXTS.cnt = DATA_DBG_EXTS.cnt + 1;
     for i = 1:length(data_in)
         % get local extremes
-        switch isminmax(data_in,i)
+        switch utilities.isminmax(data_in,i)
             case -1
                 if strcmp(levd.ext(2).type,'init')
                     levd.ext(2).type = 'min';
@@ -71,60 +71,9 @@ function [ data_out, ext_out ] = levddetect( data_in, s_init, ext_in )
         end
         % calculate static vector
         % levd.s(i+1) = 0.9*levd.s(i)+0.1*getextmean(levd.ext);
-        levd.s(i+1) = getstaticvec(data_in,levd.s,i,levd.ext);
+        levd.s(i+1) = utilities.getstaticvec(data_in,levd.s,i,levd.ext);
     end
     ext_out = levd.ext;
     data_out = levd.s(2:end)';
 end
 
-function out = isminmax(data, i)
-%ISMINMAX
-%  min: out = -1
-%  max: out = 1
-%  oth: out = 0
-    num = 5;
-    % get left value
-    if i < num+1 && i > 1
-        ism.left = mean(data(1:i-1));
-    elseif i ~= 1
-        ism.left = mean(data(i-num:i-1));
-    end
-    % get right value
-    if i > length(data)-num && i < length(data)
-        ism.right = mean(data(i+1:end));
-    elseif i ~= length(data)
-        ism.right = mean(data(i+1:i+num));
-    end
-    % check center value
-    if i == 1 || i == length(data)
-        ism.out = 0;
-    elseif (data(i) > ism.left) && (data(i) > ism.right)
-        ism.out = 1;
-    elseif (data(i) < ism.left) && (data(i) < ism.right)
-        ism.out = -1;
-    else
-        ism.out = 0;
-    end
-    out = ism.out;
-end
-
-function out = getextmean(ext)
-%GETEXTMEAN
-    if strcmp(ext(1).type,'init') || strcmp(ext(2).type,'init')
-        ise.out = 0;
-    else
-        ise.out = (ext(1).data+ext(2).data)/2;
-    end
-    out = ise.out;
-end
-
-function out = getstaticvec(data,s,i,ext)
-%GETSTATICVEC
-    extmean = getextmean(ext);
-    if extmean ~= 0
-        vec.out = 0.9*s(i) + 0.1*extmean;
-    else
-        vec.out = 0.9*data(i);
-    end
-    out = vec.out;
-end
