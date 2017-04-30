@@ -3,6 +3,7 @@ package com.bigrats.acpadlib;
 import Jama.Matrix;
 import com.bigrats.acpadlib.structs.CicData;
 import com.bigrats.acpadlib.structs.CodData;
+import com.bigrats.acpadlib.structs.FcdData;
 import com.bigrats.acpadlib.structs.LevdData;
 
 /**
@@ -233,6 +234,48 @@ public class Utilities {
         levddata_out.s_init = s[s.length-1];
         levddata_out.ext = ext;
         return levddata_out;
+    }
+
+    /**** FCDDETECT ****/
+
+    private static double sum(Matrix data) {
+        double[] data_arr = data.getArrayCopy()[0];
+        double sum_data = 0;
+        for (int i = 0; i < data_arr.length; i++) {
+            sum_data += data_arr[i];
+        }
+        return sum_data;
+    }
+
+    public static FcdData fcddetect(FcdData fcddata_in) {
+        int frameSize = Params.FRAME_SIZE;
+        int decf = Params.CIC_DECIM_FACT;
+        int N = frameSize / decf;
+
+        double s_x = sum(fcddata_in.data_i);
+        double s_y = sum(fcddata_in.data_q);
+        double s_xx = sum(fcddata_in.data_i.arrayTimes(fcddata_in.data_i));
+        double s_xy = sum(fcddata_in.data_i.arrayTimes(fcddata_in.data_q));
+        double s_yy = sum(fcddata_in.data_q.arrayTimes(fcddata_in.data_q));
+        double s_xxx = sum(fcddata_in.data_i.arrayTimes(fcddata_in.data_i).arrayTimes(fcddata_in.data_i));
+        double s_xxy = sum(fcddata_in.data_i.arrayTimes(fcddata_in.data_i).arrayTimes(fcddata_in.data_q));
+        double s_xyy = sum(fcddata_in.data_i.arrayTimes(fcddata_in.data_q).arrayTimes(fcddata_in.data_q));
+        double s_yyy = sum(fcddata_in.data_q.arrayTimes(fcddata_in.data_q).arrayTimes(fcddata_in.data_q));
+
+        double p1 = N * s_xx - Math.pow(s_x, 2);
+        double p2 = N * s_xy - s_x * s_y;
+        double p3 = N * (s_xxx + s_xyy) - s_x * (s_xx + s_yy);
+        double p4 = N * s_xy - s_x * s_y;
+        double p5 = N * s_yy - Math.pow(s_y, 2);
+        double p6 = N * (s_xxy + s_yyy) - s_y * (s_xx + s_yy);
+
+        double a = (p2 * p6 - p3 * p5) / (p1 * p5 - p2 * p4);
+        double b = (p3 * p4 - p1 * p6) / (p1 * p5 - p2 * p4);
+
+        Matrix data_out_i = new Matrix(1, N, a / (-2));
+        Matrix data_out_q = new Matrix(1, N, b / (-2));
+
+        return new FcdData(data_out_i, data_out_q);
     }
 
 
