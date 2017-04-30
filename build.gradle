@@ -1,0 +1,16 @@
+group 'com.bigrats'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    maven { url 'http://maven.aliyun.com/nexus/content/repositories/central/' }
+}
+
+dependencies {
+    compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
