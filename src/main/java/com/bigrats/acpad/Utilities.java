@@ -63,6 +63,60 @@ public class Utilities {
         return codData;
     }
 
+    /**** CICDECIM ****/
+
+    public static CicData cicdecim(CicData cicdata_in) {
+        int frameSize = Params.FRAME_SIZE;
+        int decf = Params.CIC_DECIM_FACT;
+        int diffd = Params.CIC_DIFF_DELAY;
+
+        double[] combbuf = new double[3];
+        Matrix dbuf = cicdata_in.dbuf;
+        Matrix ibuf = cicdata_in.ibuf;
+        Matrix data_in = cicdata_in.data;
+        Matrix data_out = new Matrix(1,frameSize/decf);
+
+        CicData cicdata_out = new CicData();
+
+        if (cicdata_in.dbuf == null) {
+            dbuf = new Matrix(3,diffd);
+        }
+        if (cicdata_in.ibuf == null) {
+            ibuf = new Matrix(3,1);
+        }
+
+        for (int i = 0; i < data_in.getColumnDimension(); i++) {
+            // integrator 1
+            ibuf.set(0,0,ibuf.get(0,0) + data_in.get(0, i));
+            // integrator 2
+            ibuf.set(1,0,ibuf.get(1,0) + ibuf.get(0, 0));
+            // integrator 3
+            ibuf.set(2,0,ibuf.get(2,0) + ibuf.get(1, 0));
+
+            // decimation
+            if (i % decf == 0) {
+                // comb section 1
+                combbuf[0] = ibuf.get(2,0) - dbuf.get(0, 0);
+                dbuf.setMatrix(0,0,0,diffd-2, dbuf.getMatrix(0, 0, 1, diffd-1));
+                dbuf.set(0, diffd-1, ibuf.get(2, 0));
+                // comb section 2
+                combbuf[1] = combbuf[0] - dbuf.get(1, 0);
+                dbuf.setMatrix(1,1,0,diffd-2, dbuf.getMatrix(1, 1, 1, diffd-1));
+                dbuf.set(1, diffd-1, combbuf[0]);
+                // comb section 3
+                combbuf[2] = combbuf[1] - dbuf.get(2, 0);
+                dbuf.setMatrix(2,2,0,diffd-2, dbuf.getMatrix(2, 2, 1, diffd-1));
+                dbuf.set(2, diffd-1, combbuf[1]);
+                // get output
+                data_out.set(0, i/decf, combbuf[2]);
+            }
+        }
+
+        cicdata_out.data = data_out;
+        cicdata_out.ibuf = ibuf;
+        cicdata_out.dbuf = dbuf;
+        return cicdata_out;
+    }
 
 
 
