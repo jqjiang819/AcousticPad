@@ -32,6 +32,38 @@ public class Utilities {
         return data;
     }
 
+    /**** CODETECT ****/
+
+    private static double[][] getCodRef(double init_time, int len) {
+        int fs = Params.FREQ_SAMP;
+        int fc = Params.FREQ_CENTER;
+        double[][] ref = new double[2][len];
+        for (int i = 0; i < len; i++) {
+            ref[0][i] = Math.cos(2 * Math.PI * fc * (init_time + (i + 1) / fs));
+            ref[1][i] = - Math.sin(2 * Math.PI * fc * (init_time + (i + 1) / fs));
+        }
+        return ref;
+    }
+
+    public static CodData codetect(double[] sndres, double init_time) {
+        int fs = Params.FREQ_SAMP;
+        int fc = Params.FREQ_CENTER;
+
+        CodData codData = new CodData();
+
+        double[][] codref = getCodRef(init_time,sndres.length);
+        Matrix res = new Matrix(sndres,1);
+        Matrix ref_cos = new Matrix(codref[0],1);
+        Matrix ref_sin = new Matrix(codref[1],1);
+
+        codData.data_i = res.arrayTimes(ref_cos);
+        codData.data_q = res.arrayTimes(ref_sin);
+        codData.time = init_time + sndres.length / fs;
+
+        return codData;
+    }
+
+
 
 
 }
