@@ -1,4 +1,4 @@
-package com.bigrats.acpad;
+package com.bigrats.acpadlib;
 
 /**
  * Created by jqjiang on 2017/4/30.

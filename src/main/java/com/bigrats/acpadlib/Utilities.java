@@ -1,9 +1,9 @@
-package com.bigrats.acpad;
+package com.bigrats.acpadlib;
 
 import Jama.Matrix;
-import com.bigrats.acpad.structs.CicData;
-import com.bigrats.acpad.structs.CodData;
-import com.bigrats.acpad.structs.LevdData;
+import com.bigrats.acpadlib.structs.CicData;
+import com.bigrats.acpadlib.structs.CodData;
+import com.bigrats.acpadlib.structs.LevdData;
 
 /**
  * Created by jqjiang on 2017/4/30.

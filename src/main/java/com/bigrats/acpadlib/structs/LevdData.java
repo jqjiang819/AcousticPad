@@ -1,4 +1,4 @@
-package com.bigrats.acpad.structs;
+package com.bigrats.acpadlib.structs;
 
 import Jama.Matrix;
 
