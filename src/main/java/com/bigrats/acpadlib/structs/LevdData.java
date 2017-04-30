@@ -10,6 +10,14 @@ public class LevdData {
     public double s_init = 0;
     public ExtData[] ext = null;
 
+    public LevdData() {}
+
+    public LevdData(Matrix data, double s_init, ExtData[] ext) {
+        this.data = data;
+        this.s_init = s_init;
+        this.ext = ext;
+    }
+
     public class ExtData {
         public double value;
         public int type;

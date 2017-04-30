@@ -9,4 +9,12 @@ public class CicData {
     public Matrix data = null;
     public Matrix dbuf = null;
     public Matrix ibuf = null;
+
+    public CicData() {}
+
+    public CicData(Matrix data, Matrix dbuf, Matrix ibuf) {
+        this.data = data;
+        this.dbuf = dbuf;
+        this.ibuf = ibuf;
+    }
 }
