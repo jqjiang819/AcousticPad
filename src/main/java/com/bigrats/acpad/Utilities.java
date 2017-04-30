@@ -3,6 +3,7 @@ package com.bigrats.acpad;
 import Jama.Matrix;
 import com.bigrats.acpad.structs.CicData;
 import com.bigrats.acpad.structs.CodData;
+import com.bigrats.acpad.structs.LevdData;
 
 /**
  * Created by jqjiang on 2017/4/30.
@@ -118,6 +119,121 @@ public class Utilities {
         return cicdata_out;
     }
 
+    /**** LEVDDETECT ****/
+    private static double sum(double[] data, int i1, int i2) {
+        double sum_data = 0;
+        for (int i = i1; i < i2 + 1; i++) {
+            sum_data += data[i];
+        }
+        return sum_data;
+    }
+    private static double mean(double[] data, int i1, int i2) {
+        return sum(data, i1, i2) / (i2 - i1 + 1);
+    }
+
+    private static int isminmax(double[] data, int i) {
+        int num = Params.MEAN_RADIUS;
+        int len = data.length;
+        double val_left = 0, val_right = 0;
+        // get left value
+        if (i < num && i > 0) {
+            val_left = mean(data, 0, i - 1);
+        }else if (i != 0) {
+            val_left = mean(data, i - num, i - 1);
+        }
+        // get right value
+        if (i > len - num - 1 && i < len - 1) {
+            val_right = mean(data, i + 1, len - 1);
+        }else if (i != len - 1) {
+            val_right = mean(data, i + 1, i + num);
+        }
+        // check center value
+        if (i == 0 || i == len - 1) {
+            return 0;
+        }
+        if (data[i] > val_left && data[i] > val_right) {
+            return 1;
+        }
+        if (data[i] < val_left && data[i] < val_right) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private static double getextmean(LevdData.ExtData[] ext) {
+        if (ext[0].isInit() || ext[1].isInit()) {
+            return 0;
+        }
+        return (ext[0].value + ext[1].value) / 2;
+    }
+
+    private static double getstaticvec(double[] data, double[] s, int i, LevdData.ExtData[] ext) {
+        double extmean = getextmean(ext);
+        if (extmean != 0) {
+            return 0.9 * s[i] + 0.1 * extmean;
+        }
+        return 0.9 * data[i];
+    }
+
+    public static LevdData levddetect(LevdData levddata_in) {
+
+        int data_len = levddata_in.data.getColumnDimension();
+        double[] s = new double[data_len+1];
+        LevdData.ExtData[] ext = levddata_in.ext;
+        Matrix data_in = levddata_in.data;
+        Matrix data_out;
+
+        LevdData levddata_out = new LevdData();
+
+        s[0] = levddata_in.s_init;
+        double[] data_in_arr = data_in.getArrayCopy()[0];
+
+        for (int i = 0; i < data_len; i++) {
+            // get local extremes
+            switch (isminmax(data_in_arr, i)) {
+                case -1:
+                    if (ext[1].isInit()) {
+                        ext[1].setType("min");
+                        ext[1].value = data_in_arr[i];
+                        break;
+                    }
+                    if (ext[1].isMax() && Math.abs(data_in_arr[i] - ext[1].value) > 2e5) {
+                        ext[0] = ext[1];
+                        ext[1].setType("min");
+                        ext[1].value = data_in_arr[i];
+                        break;
+                    }
+                    if (ext[1].isMin() && data_in_arr[i] < ext[1].value) {
+                        ext[1].value = data_in_arr[i];
+                        break;
+                    }
+                case 1:
+                    if (ext[1].isInit()) {
+                        ext[1].setType("max");
+                        ext[1].value = data_in_arr[i];
+                        break;
+                    }
+                    if (ext[1].isMin() && Math.abs(data_in_arr[i] - ext[1].value) > 2e5) {
+                        ext[0] = ext[1];
+                        ext[1].setType("max");
+                        ext[1].value = data_in_arr[i];
+                        break;
+                    }
+                    if (ext[1].isMax() && data_in_arr[i] > ext[1].value) {
+                        ext[1].value = data_in_arr[i];
+                        break;
+                    }
+            }
+            // calculate static vector
+            s[i+1] = getstaticvec(data_in_arr, s, i, ext);
+        }
+
+        data_out = new Matrix(s,1).getMatrix(0,0,1,data_len);
+        levddata_out.data = data_out;
+        levddata_out.s_init = s[s.length-1];
+        levddata_out.ext = ext;
+        return levddata_out;
+    }
 
 
 }
