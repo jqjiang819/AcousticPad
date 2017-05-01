@@ -183,6 +183,10 @@ public class Utilities {
         s[0] = levddata_in.s_init;
         double[] data_in_arr = data_in.getArrayCopy()[0];
 
+        if (ext == null) {
+            ext = new LevdData.ExtData[2];
+        }
+
         for (int i = 0; i < data_len; i++) {
             // get local extremes
             switch (isminmax(data_in_arr, i)) {
