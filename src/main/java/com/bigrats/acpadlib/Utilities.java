@@ -58,11 +58,7 @@ public class Utilities {
         Matrix ref_cos = new Matrix(codref[0],1);
         Matrix ref_sin = new Matrix(codref[1],1);
 
-        codData.data_i = res.arrayTimes(ref_cos);
-        codData.data_q = res.arrayTimes(ref_sin);
-        codData.time = init_time + sndres.length / fs;
-
-        return codData;
+        return new CodData(res.arrayTimes(ref_cos), res.arrayTimes(ref_sin), init_time + sndres.length / fs);
     }
 
     /**** CICDECIM ****/
@@ -114,10 +110,7 @@ public class Utilities {
             }
         }
 
-        cicdata_out.data = data_out;
-        cicdata_out.ibuf = ibuf;
-        cicdata_out.dbuf = dbuf;
-        return cicdata_out;
+        return new CicData(data_out, dbuf, ibuf);
     }
 
     /**** LEVDDETECT ****/
@@ -128,6 +121,7 @@ public class Utilities {
         }
         return sum_data;
     }
+
     private static double mean(double[] data, int i1, int i2) {
         return sum(data, i1, i2) / (i2 - i1 + 1);
     }
@@ -230,10 +224,7 @@ public class Utilities {
         }
 
         data_out = new Matrix(s,1).getMatrix(0,0,1,data_len);
-        levddata_out.data = data_out;
-        levddata_out.s_init = s[s.length-1];
-        levddata_out.ext = ext;
-        return levddata_out;
+        return new LevdData(data_out, s[s.length-1], ext);
     }
 
     /**** FCDDETECT ****/
