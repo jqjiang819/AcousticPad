@@ -1,10 +1,7 @@
 package com.bigrats.acpadlib;
 
 import Jama.Matrix;
-import com.bigrats.acpadlib.structs.CicData;
-import com.bigrats.acpadlib.structs.CodData;
-import com.bigrats.acpadlib.structs.FcdData;
-import com.bigrats.acpadlib.structs.LevdData;
+import com.bigrats.acpadlib.structs.*;
 
 import java.io.DataInputStream;
 
@@ -20,8 +17,8 @@ public class Utilities {
         byte[] byte_tmp = new byte[2];
         try {
             ResHelper resHelper = new ResHelper();
-            int bufferSize = resHelper.getLen("/res/" + respath) / 2;
-            DataInputStream is = new DataInputStream(resHelper.getRes("/res/" + respath));
+            int bufferSize = resHelper.getLen("/res" + respath) / 2;
+            DataInputStream is = new DataInputStream(resHelper.getRes("/res" + respath));
             result = new double[bufferSize];
             System.out.println(bufferSize);
             for (int i = 0; i < bufferSize; i++) {
@@ -173,14 +170,14 @@ public class Utilities {
         return 0;
     }
 
-    private static double getextmean(LevdData.ExtData[] ext) {
+    private static double getextmean(ExtData[] ext) {
         if (ext[0].isInit() || ext[1].isInit()) {
             return 0;
         }
         return (ext[0].value + ext[1].value) / 2;
     }
 
-    private static double getstaticvec(double[] data, double[] s, int i, LevdData.ExtData[] ext) {
+    private static double getstaticvec(double[] data, double[] s, int i, ExtData[] ext) {
         double extmean = getextmean(ext);
         if (extmean != 0) {
             return 0.9 * s[i] + 0.1 * extmean;
@@ -192,7 +189,7 @@ public class Utilities {
 
         int data_len = levddata_in.data.getColumnDimension();
         double[] s = new double[data_len+1];
-        LevdData.ExtData[] ext = levddata_in.ext;
+        ExtData[] ext = levddata_in.ext;
         Matrix data_in = levddata_in.data;
         Matrix data_out;
 
@@ -202,7 +199,9 @@ public class Utilities {
         double[] data_in_arr = data_in.getArrayCopy()[0];
 
         if (ext == null) {
-            ext = new LevdData.ExtData[2];
+            ext = new ExtData[2];
+            ext[0] = new ExtData();
+            ext[1] = new ExtData();
         }
 
         for (int i = 0; i < data_len; i++) {
