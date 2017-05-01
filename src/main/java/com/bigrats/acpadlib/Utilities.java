@@ -6,6 +6,8 @@ import com.bigrats.acpadlib.structs.CodData;
 import com.bigrats.acpadlib.structs.FcdData;
 import com.bigrats.acpadlib.structs.LevdData;
 
+import java.io.DataInputStream;
+
 /**
  * Created by jqjiang on 2017/4/30.
  */
@@ -14,8 +16,24 @@ public class Utilities {
     /**** SNDCNVRT ****/
 
     private static double[] loadRes(String respath) {
-        /*** This remains to be filled ***/
-        return new double[1];
+        double[] result = null;
+        byte[] byte_tmp = new byte[2];
+        try {
+            ResHelper resHelper = new ResHelper();
+            int bufferSize = resHelper.getLen("/res/" + respath) / 2;
+            DataInputStream is = new DataInputStream(resHelper.getRes("/res/" + respath));
+            result = new double[bufferSize];
+            System.out.println(bufferSize);
+            for (int i = 0; i < bufferSize; i++) {
+                byte_tmp[0] = is.readByte();
+                byte_tmp[1] = is.readByte();
+                result[i] = ((short)((byte_tmp[1] & 0x00FF) << 8 | byte_tmp[0] & 0x00FF)) / Math.pow(2, 15);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public static double[][] sndcnvrt(String respath) {
