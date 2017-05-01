@@ -12,9 +12,18 @@ public class CicData {
 
     public CicData() {}
 
+    public CicData(Matrix data) {
+        this.data = data;
+    }
+
     public CicData(Matrix data, Matrix dbuf, Matrix ibuf) {
         this.data = data;
         this.dbuf = dbuf;
         this.ibuf = ibuf;
+    }
+
+    public CicData setData(Matrix data) {
+        this.data = data;
+        return this;
     }
 }
