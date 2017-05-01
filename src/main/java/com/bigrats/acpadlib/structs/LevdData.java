@@ -12,10 +12,19 @@ public class LevdData {
 
     public LevdData() {}
 
+    public LevdData(Matrix data) {
+        this.data = data;
+    }
+
     public LevdData(Matrix data, double s_init, ExtData[] ext) {
         this.data = data;
         this.s_init = s_init;
         this.ext = ext;
+    }
+
+    public LevdData setData(Matrix data) {
+        this.data = data;
+        return this;
     }
 
     public class ExtData {
