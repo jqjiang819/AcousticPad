@@ -55,9 +55,11 @@ public class Utilities {
         int fs = Params.FREQ_SAMP;
         int fc = Params.FREQ_CENTER;
         double[][] ref = new double[2][len];
+        double time;
         for (int i = 0; i < len; i++) {
-            ref[0][i] = Math.cos(2 * Math.PI * fc * (init_time + (i + 1) / fs));
-            ref[1][i] = - Math.sin(2 * Math.PI * fc * (init_time + (i + 1) / fs));
+            time = 2 * Math.PI * fc * (init_time + (double) (i + 1) / fs);
+            ref[0][i] = Math.cos(time);
+            ref[1][i] = - Math.sin(time);
         }
         return ref;
     }
