@@ -20,7 +20,6 @@ public class Utilities {
             int bufferSize = resHelper.getLen("/res" + respath) / 2;
             DataInputStream is = new DataInputStream(resHelper.getRes("/res" + respath));
             result = new double[bufferSize];
-            System.out.println(bufferSize);
             for (int i = 0; i < bufferSize; i++) {
                 byte_tmp[0] = is.readByte();
                 byte_tmp[1] = is.readByte();
