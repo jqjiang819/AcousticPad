@@ -10,4 +10,6 @@ final class Params {
     static final int CIC_DECIM_FACT = 16;
     static final int CIC_DIFF_DELAY = 17;
     static final int MEAN_RADIUS = 5;
+
+    static final double WAVE_LENGTH = (double) 34000 / FREQ_CENTER;
 }

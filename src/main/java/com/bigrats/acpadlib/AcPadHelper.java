@@ -67,7 +67,7 @@ public class AcPadHelper {
         }
     }
 
-    public double[][] getData() {
+    public double[][] getIQData() {
         double[] data_i = new double[vec_i.length * vec_i[0].length];
         double[] data_q = new double[vec_i.length * vec_i[0].length];
         for (int i = 0; i < vec_i.length; i++) {
@@ -75,6 +75,41 @@ public class AcPadHelper {
             System.arraycopy(vec_q[i],0, data_q, vec_q[i].length * i, vec_q[i].length);
         }
         return new double[][]{data_i, data_q};
+    }
+
+    public double[][] getDistData() {
+        double[][] data_iq = this.getIQData();
+        double[] data_i = data_iq[0];
+        double[] data_q = data_iq[1];
+
+        int len = data_i.length;
+        int fs_out = Params.FREQ_SAMP / Params.CIC_DECIM_FACT;
+        double wavlen = Params.WAVE_LENGTH;
+        double[] ang = new double[len];
+        double[] pha = new double[len];
+        double[] dist = new double[len];
+        double[] time = new double[len];
+        double ang_add = 0;
+
+        ang[0] = Math.atan2(data_i[0], data_q[0]);
+        pha[0] = ang[0];
+        dist[0] = pha[0] / (2 * Math.PI) * wavlen;
+        time[0] = 1.0 / (double) fs_out;
+        for (int i = 1; i < len; i++) {
+            ang[i] = Math.atan2(data_i[i], data_q[i]);
+            if (ang[i] - ang[i - 1] < -Math.PI) {
+                ang_add += 2 * Math.PI;
+            }
+            else if (ang[i] - ang[i - 1] > Math.PI) {
+                ang_add -= 2 * Math.PI;
+            }
+            pha[i] = ang[i] + ang_add;
+            dist[i] = (pha[i] / (2 * Math.PI) * wavlen - dist[0])/2;
+            time[i] = (double) (i + 1) / (double) fs_out;
+        }
+        dist[0] = 0;
+
+        return new double[][]{time, dist};
     }
 
     public AcPadHelper setResPath(String respath) {
