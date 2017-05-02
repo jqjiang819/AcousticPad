@@ -216,7 +216,7 @@ public class Utilities {
                         break;
                     }
                     if (ext[1].isMax() && Math.abs(data_in_arr[i] - ext[1].value) > 2e5) {
-                        ext[0] = ext[1];
+                        ext[0].copy(ext[1]);
                         ext[1].setType("min");
                         ext[1].value = data_in_arr[i];
                         break;
@@ -232,7 +232,7 @@ public class Utilities {
                         break;
                     }
                     if (ext[1].isMin() && Math.abs(data_in_arr[i] - ext[1].value) > 2e5) {
-                        ext[0] = ext[1];
+                        ext[0].copy(ext[1]);
                         ext[1].setType("max");
                         ext[1].value = data_in_arr[i];
                         break;

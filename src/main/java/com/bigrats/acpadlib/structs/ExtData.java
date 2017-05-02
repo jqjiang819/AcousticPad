@@ -26,6 +26,11 @@ public class ExtData {
         }
     }
 
+    public void copy(ExtData extData) {
+        this.value = extData.value;
+        this.type = extData.type;
+    }
+
     public boolean isInit() {
         return this.type == 0;
     }
