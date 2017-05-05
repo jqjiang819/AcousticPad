@@ -6,9 +6,6 @@ import android.os.Message;
 
 import com.bigrats.acpadlib.structs.*;
 
-import java.text.DecimalFormat;
-import java.util.Arrays;
-
 /**
  * Created by jqjiang on 2017/5/1.
  */
@@ -26,12 +23,12 @@ public class AcPadHelper {
     private LevdData levdData_i, levdData_q;
     private FcdData fcdData;
     private double[] vec_i, vec_q;
+    private double dist_init;
 
     // init interfaces
-    Handler hdl_calc = null;
-    SndHelper sndHelper = null;
-
-    public AcPadHelper() {}
+    private Handler hdl_calc = null;
+    private Handler hdl_return = null;
+    private SndHelper sndHelper = null;
 
     public AcPadHelper(String algorithm) {
         this.setAlgorithm(algorithm);
@@ -53,42 +50,65 @@ public class AcPadHelper {
         this.fcdData = new FcdData();
         this.vec_i = new double[Params.FRAME_SIZE/Params.CIC_DECIM_FACT];
         this.vec_q = new double[Params.FRAME_SIZE/Params.CIC_DECIM_FACT];
+        this.dist_init = 0;
 
         // interfaces
         this.sndHelper = new SndHelper();
+        this.hdl_return = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (sndHelper.isRunning()) {
+                    Bundle bundle = msg.getData();
+                    double[] dist = bundle.getDoubleArray("DIST");
+                    onDataReceive(dist);
+                    super.handleMessage(msg);
+                }
+            }
+        };
     }
 
     public void run() {
         this.init();
-//        for (int i = 0; i < this.snd_data.length; i++) {
-//            // coherent detection
-//            this.codData = Utilities.codetect(this.snd_data[i], this.codData.time);
-//            // cic filtering
-//            this.cicData_i = Utilities.cicdecim(this.cicData_i.setData(this.codData.data_i));
-//            this.cicData_q = Utilities.cicdecim(this.cicData_q.setData(this.codData.data_q));
-//            // levd detection
-//            if (this.algorithm.equals("LEVD")) {
-//                this.levdData_i = Utilities.levddetect(levdData_i.setData(this.cicData_i.data));
-//                this.levdData_q = Utilities.levddetect(levdData_q.setData(this.cicData_q.data));
-//                this.vec_i = this.cicData_i.data.minus(this.levdData_i.data).getArrayCopy()[0];
-//                this.vec_q = this.cicData_q.data.minus(this.levdData_q.data).getArrayCopy()[0];
-//            }
-//            // fcd algorithm
-//            if (this.algorithm.equals("FCD")) {
-//                this.fcdData = Utilities.fcddetect(new FcdData(this.cicData_i.data, this.cicData_q.data));
-//                this.vec_i = this.cicData_i.data.minus(this.fcdData.data_i).getArrayCopy()[0];
-//                this.vec_q = this.cicData_q.data.minus(this.fcdData.data_q).getArrayCopy()[0];
-//            }
-//        }
         hdl_calc = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case 0:
-                        Bundle bundle = msg.getData();
-                        short[] snd_data = bundle.getShortArray("SND_DATA");
-                        break;
-                }
+                Bundle bundle = msg.getData();
+                final short[] pcm_data = bundle.getShortArray("SND_DATA");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // convert snd data to double
+                        double[] snd_data = Utilities.sndcnvrt(pcm_data);
+                        // coherent detection
+                        codData = Utilities.codetect(snd_data, codData.time);
+                        // cic filtering
+                        cicData_i = Utilities.cicdecim(cicData_i.setData(codData.data_i));
+                        cicData_q = Utilities.cicdecim(cicData_q.setData(codData.data_q));
+                        if (algorithm.equals("LEVD")) {
+                            levdData_i = Utilities.levddetect(levdData_i.setData(cicData_i.data));
+                            levdData_q = Utilities.levddetect(levdData_q.setData(cicData_q.data));
+                            vec_i = cicData_i.data.minus(levdData_i.data).getArrayCopy()[0];
+                            vec_q = cicData_q.data.minus(levdData_q.data).getArrayCopy()[0];
+                        }
+                        // fcd algorithm
+                        if (algorithm.equals("FCD")) {
+                            fcdData = Utilities.fcddetect(new FcdData(cicData_i.data, cicData_q.data));
+                            vec_i = cicData_i.data.minus(fcdData.data_i).getArrayCopy()[0];
+                            vec_q = cicData_q.data.minus(fcdData.data_q).getArrayCopy()[0];
+                        }
+                        // calc distance
+                        double[] dist = Utilities.getDistData(vec_i, vec_q, dist_init);
+                        dist_init = dist[dist.length-1];
+                        // send data
+                        Message msg = hdl_return.obtainMessage();
+                        Bundle bundle = new Bundle();
+                        bundle.putDoubleArray("DIST", dist);
+                        msg.what = 0;
+                        msg.setData(bundle);
+                        hdl_return.sendMessage(msg);
+                    }
+                }).start();
+
                 super.handleMessage(msg);
             }
         };
@@ -108,38 +128,11 @@ public class AcPadHelper {
         }).start();
     }
 
-    public double[][] getDistData() {
-        double[] data_i = vec_i;
-        double[] data_q = vec_q;
+    public void onDataReceive(double[] data) {
+    }
 
-        int len = data_i.length;
-        int fs_out = Params.FREQ_SAMP / Params.CIC_DECIM_FACT;
-        double wavlen = Params.WAVE_LENGTH;
-        double[] ang = new double[len];
-        double[] pha = new double[len];
-        double[] dist = new double[len];
-        double[] time = new double[len];
-        double ang_add = 0;
-
-        ang[0] = Math.atan2(data_i[0], data_q[0]);
-        pha[0] = ang[0];
-        dist[0] = pha[0] / (2 * Math.PI) * wavlen;
-        time[0] = 1.0 / (double) fs_out;
-        for (int i = 1; i < len; i++) {
-            ang[i] = Math.atan2(data_i[i], data_q[i]);
-            if (ang[i] - ang[i - 1] < -Math.PI) {
-                ang_add += 2 * Math.PI;
-            }
-            else if (ang[i] - ang[i - 1] > Math.PI) {
-                ang_add -= 2 * Math.PI;
-            }
-            pha[i] = ang[i] + ang_add;
-            dist[i] = (pha[i] / (2 * Math.PI) * wavlen - dist[0])/2;
-            time[i] = (double) (i + 1) / (double) fs_out;
-        }
-        dist[0] = 0;
-
-        return new double[][]{time, dist};
+    public void stop() {
+        this.sndHelper.stop();
     }
 
     public AcPadHelper setAlgorithm(String algorithm) {
