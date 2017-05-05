@@ -73,11 +73,11 @@ public class SndHelper {
     }
 
     public void stop() {
+        this.state = false;
         audioRecord.stop();
         audioTrack.stop();
         audioRecord.release();
         audioTrack.release();
-        this.state = false;
     }
 
     public boolean isRunning() {
