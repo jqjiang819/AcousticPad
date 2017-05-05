@@ -21,12 +21,6 @@ android {
     }
 }
 
-repositories {
-    mavenLocal()
-    maven { url 'http://maven.aliyun.com/nexus/content/repositories/central/' }
-    
-}
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

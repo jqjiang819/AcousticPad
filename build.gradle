@@ -14,7 +14,7 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter/?spm=0.0.0.0.72VjO7'}
     }
 }
 
