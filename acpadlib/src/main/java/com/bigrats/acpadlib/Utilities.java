@@ -9,6 +9,13 @@ import com.bigrats.acpadlib.structs.*;
 public class Utilities {
 
     /**** SNDCNVRT ****/
+    public static double[] sndcnvrt(short[] pcmdata) {
+        double[] data = new double[pcmdata.length];
+        for (int i = 0; i < pcmdata.length; i++) {
+            data[i] = ((double) pcmdata[i]) / ((double) Short.MAX_VALUE);
+        }
+        return data;
+    }
 
     /**** CODETECT ****/
 
@@ -252,6 +259,5 @@ public class Utilities {
 
         return new FcdData(data_out_i, data_out_q);
     }
-
 
 }
