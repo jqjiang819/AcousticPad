@@ -260,4 +260,34 @@ public class Utilities {
         return new FcdData(data_out_i, data_out_q);
     }
 
+    /**** GETDIST ****/
+    public static double[] getDistData(double[] vec_i, double[] vec_q, double init_dist) {
+
+        int len = vec_i.length;
+        double wavlen = Params.WAVE_LENGTH;
+        double[] ang = new double[len];
+        double[] pha = new double[len];
+        double[] dist = new double[len];
+        double ang_add = 0;
+
+        ang[0] = Math.atan2(vec_i[0], vec_q[0]);
+        pha[0] = ang[0];
+        dist[0] = pha[0] / (2 * Math.PI) * wavlen;
+        for (int i = 1; i < len; i++) {
+            ang[i] = Math.atan2(vec_i[i], vec_q[i]);
+            if (ang[i] - ang[i - 1] < -Math.PI) {
+                ang_add += 2 * Math.PI;
+            }
+            else if (ang[i] - ang[i - 1] > Math.PI) {
+                ang_add -= 2 * Math.PI;
+            }
+            pha[i] = ang[i] + ang_add;
+            dist[i] = (pha[i] / (2 * Math.PI) * wavlen - dist[0])/2 + init_dist;
+            //time[i] = (double) (i + 1) / (double) fs_out;
+        }
+        dist[0] = init_dist;
+
+        return dist;
+    }
+
 }
