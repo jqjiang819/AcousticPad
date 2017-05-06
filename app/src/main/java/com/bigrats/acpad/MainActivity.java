@@ -1,11 +1,14 @@
 package com.bigrats.acpad;
 
+import android.Manifest;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.bigrats.acpad.utils.PermissionRequest;
 import com.bigrats.acpadlib.AcPadHelper;
 
 import java.text.DecimalFormat;
@@ -19,11 +22,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        requestPermissions();
         initView();
         initListeners();
     }
 
     private void initView() {
+        //Toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         this.btn_start = (Button) findViewById(R.id.btn_start);
         this.tv_dist = (TextView) findViewById(R.id.tv_dist);
 
@@ -58,4 +66,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void requestPermissions(){
+        PermissionRequest permissionRequest = new PermissionRequest(this);
+        permissionRequest.addPermission(Manifest.permission.RECORD_AUDIO, 0);
+        permissionRequest.request();
+    }
+
 }
