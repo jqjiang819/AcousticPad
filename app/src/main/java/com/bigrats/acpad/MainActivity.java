@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.bigrats.acpad.utils.PermissionRequest;
@@ -14,7 +15,7 @@ import com.bigrats.acpadlib.AcPadHelper;
 import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
-    Button btn_start = null;
+    ImageButton btn_start = null;
     TextView tv_dist = null;
     AcPadHelper acPadHelper = null;
 
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        this.btn_start = (Button) findViewById(R.id.btn_start);
+        this.btn_start = (ImageButton) findViewById(R.id.btn_start);
         this.tv_dist = (TextView) findViewById(R.id.tv_dist);
 
         btn_start.setContentDescription("START");
@@ -42,11 +43,8 @@ public class MainActivity extends AppCompatActivity {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Button btn = (Button) v;
-                if (!btn.getContentDescription().equals("STOP")) {
-                    btn.setText("STOP");
-                    btn.setTextColor(getColor(R.color.colorAccent));
-                    btn.setContentDescription("STOP");
+                ImageButton btn = (ImageButton) v;
+                if (btn.getContentDescription().equals("START")) {
                     acPadHelper = new AcPadHelper("LEVD") {
                         @Override
                         public void onDataReceive(double[] data) {
@@ -56,12 +54,15 @@ public class MainActivity extends AppCompatActivity {
                         }
                     };
                     acPadHelper.run();
+                    btn.setImageResource(R.drawable.ic_stop_white_96dp);
+                    btn.setBackgroundResource(R.drawable.oval_btn_stop);
+                    btn.setContentDescription("STOP");
                 } else {
-                    btn.setText("START");
-                    btn.setTextColor(getColor(R.color.colorPrimaryDark));
-                    tv_dist.setText("0.00");
-                    btn.setContentDescription("START");
                     acPadHelper.stop();
+                    tv_dist.setText("0.00");
+                    btn.setImageResource(R.drawable.ic_mic_white_96dp);
+                    btn.setBackgroundResource(R.drawable.oval_btn_start);
+                    btn.setContentDescription("START");
                 }
             }
         });

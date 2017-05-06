@@ -2,26 +2,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:padding="16dp"
+    android:layout_marginTop="?actionBarSize"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_start"
+        android:layout_marginTop="64dp"
+        android:layout_width="144dp"
+        android:layout_height="144dp"
+        android:layout_gravity="center"
+        android:background="@drawable/oval_btn_start"
+        android:src="@drawable/ic_mic_white_96dp"
+        android:elevation="6dp"
+        android:contentDescription="START"/>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"
-        android:padding="16dp"
-        android:textSize="24sp"
-        android:text="Start"/>
+        android:layout_marginTop="64dp"
+        android:textSize="48sp"
+        android:textColor="@color/md_white_1000"
+        android:text="Distance"/>
 
     <TextView
         android:id="@+id/tv_dist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="64dp"
         android:textSize="64sp"
+        android:textColor="@color/md_white_1000"
         android:text="0.00"/>
 
 </LinearLayout>
